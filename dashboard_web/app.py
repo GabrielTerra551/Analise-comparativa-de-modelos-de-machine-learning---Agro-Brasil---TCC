@@ -27,7 +27,7 @@ app.config.update(
 
 
 def _senha_dashboard() -> str:
-    return os.environ.get("DASHBOARD_WEB_PASSWORD", "agrobrasil123")
+    return os.environ.get("DASHBOARD_WEB_PASSWORD", "ine5660")
 
 
 def _esta_autenticado() -> bool:
