@@ -16,7 +16,7 @@ METRICAS_REGRESSAO = ["R2", "MAE", "RMSE"]
 METRICAS_CLASSIFICACAO = ["Accuracy", "Precision", "Recall", "F1-Score", "AUC-ROC"]
 METRICAS_MAIOR_MELHOR = {"R2", "Accuracy", "Precision", "Recall", "F1-Score", "AUC-ROC"}
 ORDEM_HORIZONTES = ["3 dias", "7 dias", "15 dias", "30 dias"]
-TIPOS_VALIDOS = {"Regressão", "Classificação"}
+TIPOS_VALIDOS = {"RegressÃ£o", "ClassificaÃ§Ã£o"}
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 app.secret_key = os.environ.get("DASHBOARD_WEB_SECRET_KEY", "dashboard-web-dev-secret")
@@ -39,7 +39,7 @@ def login_required(view_func):
     def wrapper(*args, **kwargs):
         if not _esta_autenticado():
             if request.path.startswith("/api/"):
-                return jsonify({"error": "Não autenticado."}), 401
+                return jsonify({"error": "NÃ£o autenticado."}), 401
             return redirect(url_for("index"))
         return view_func(*args, **kwargs)
 
@@ -78,8 +78,8 @@ def _preparar_dataframe(df: pd.DataFrame, metricas_remover: list[str]) -> pd.Dat
 
 def _configuracao_tipo(tipo: str) -> tuple[pd.DataFrame, list[str]]:
     df_reg, df_clf = carregar_dados()
-    tipo_normalizado = tipo if tipo in TIPOS_VALIDOS else "Regressão"
-    if tipo_normalizado == "Classificação":
+    tipo_normalizado = tipo if tipo in TIPOS_VALIDOS else "RegressÃ£o"
+    if tipo_normalizado == "ClassificaÃ§Ã£o":
         return df_clf, METRICAS_CLASSIFICACAO
     return df_reg, METRICAS_REGRESSAO
 
@@ -89,7 +89,7 @@ def _defaults_para_tipo(tipo: str) -> dict[str, Any]:
     df, metricas = _configuracao_tipo(tipo)
     metrica_ordenar = metricas[0]
     return {
-        "tipo": tipo if tipo in TIPOS_VALIDOS else "Regressão",
+        "tipo": tipo if tipo in TIPOS_VALIDOS else "RegressÃ£o",
         "modelos": sorted(df["modelo_nome"].dropna().unique().tolist()),
         "datasets": sorted(df["dataset_nome"].dropna().unique().tolist()),
         "tickers": sorted(df["ticker"].dropna().unique().tolist()),
@@ -150,7 +150,7 @@ def _registros(df: pd.DataFrame, colunas: list[str]) -> list[dict[str, Any]]:
 
 
 def _parse_filtros(payload: dict[str, Any]) -> tuple[dict[str, Any], pd.DataFrame, list[str]]:
-    tipo = payload.get("tipo", "Regressão")
+    tipo = payload.get("tipo", "RegressÃ£o")
     df, metricas = _configuracao_tipo(tipo)
     defaults = _defaults_para_tipo(tipo)
 
@@ -349,7 +349,7 @@ def login():
     if senha == _senha_dashboard():
         session["dashboard_auth"] = True
         return redirect(url_for("dashboard"))
-    return render_template("login.html", error="Senha inválida. Tente novamente."), 401
+    return render_template("login.html", error="Senha invÃ¡lida. Tente novamente."), 401
 
 
 @app.post("/logout")
@@ -368,7 +368,7 @@ def dashboard():
 @app.get("/api/metadata")
 @login_required
 def api_metadata():
-    tipo = request.args.get("tipo", "Regressão")
+    tipo = request.args.get("tipo", "RegressÃ£o")
     return jsonify(_metadata_tipo(tipo))
 
 
@@ -389,7 +389,7 @@ def api_dashboard_data():
         "cards": {
             "results_count": int(len(df_filtrado)),
             "metric": filtros["metrica_ordenar"],
-            "order": "Descendente ↓" if filtros["ordem_desc"] else "Ascendente ↑",
+            "order": "Descendente â†“" if filtros["ordem_desc"] else "Ascendente â†‘",
         },
         "table": {
             "columns": colunas_tabela,
@@ -430,5 +430,9 @@ def api_dashboard_data():
     return jsonify(resposta)
 
 
+# if __name__ == "__main__":
+#     # O debug=True vai te mostrar o erro exato no terminal e no navegador
+#     app.run(host='127.0.0.1', port=8000, debug=True)
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host='127.0.0.1', port=8000)
