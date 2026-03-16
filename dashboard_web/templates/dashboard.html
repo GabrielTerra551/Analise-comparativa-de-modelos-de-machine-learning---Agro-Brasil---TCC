@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard ML | Agro Brasil</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" defer></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+</head>
+<body>
+    <header class="topbar">
+        <div>
+            <span class="eyebrow">Agronegócio Brasil</span>
+            <h1>📊 Dashboard — Análise Comparativa de Modelos ML</h1>
+            <p class="muted">Comparação de modelos e estratégias de features para previsão de ações.</p>
+        </div>
+        <form method="post" action="{{ url_for('logout') }}">
+            <button type="submit" class="btn btn-secondary">Sair</button>
+        </form>
+    </header>
+
+    <main class="dashboard-layout">
+        <aside class="sidebar glass-card">
+            <div class="sidebar-header">
+                <h2>Filtros</h2>
+                <button id="reset-filters" type="button" class="btn btn-ghost">Restaurar</button>
+            </div>
+
+            <section class="filter-group">
+                <label class="group-label">Tipo de Modelo</label>
+                <div class="segmented-control">
+                    <label><input type="radio" name="tipo" value="Regressão" checked> Regressão</label>
+                    <label><input type="radio" name="tipo" value="Classificação"> Classificação</label>
+                </div>
+            </section>
+
+            <section class="filter-group">
+                <div class="group-label-row">
+                    <span class="group-label">Modelos</span>
+                    <button type="button" class="btn-toggle-all" data-target="modelos">Todos / Nenhum</button>
+                </div>
+                <div id="modelos" class="checkbox-group"></div>
+            </section>
+
+            <section class="filter-group">
+                <div class="group-label-row">
+                    <span class="group-label">Estratégia de Features</span>
+                    <button type="button" class="btn-toggle-all" data-target="datasets">Todos / Nenhum</button>
+                </div>
+                <div id="datasets" class="checkbox-group"></div>
+            </section>
+
+            <section class="filter-group">
+                <div class="group-label-row">
+                    <span class="group-label">Ativos</span>
+                    <button type="button" class="btn-toggle-all" data-target="tickers">Todos / Nenhum</button>
+                </div>
+                <div id="tickers" class="checkbox-group"></div>
+            </section>
+
+            <section class="filter-group">
+                <div class="group-label-row">
+                    <span class="group-label">Horizonte de Previsão</span>
+                    <button type="button" class="btn-toggle-all" data-target="horizontes">Todos / Nenhum</button>
+                </div>
+                <div id="horizontes" class="checkbox-group"></div>
+            </section>
+
+            <section class="filter-group two-columns">
+                <div>
+                    <label for="metrica_ordenar" class="group-label">Ordenar por Métrica</label>
+                    <select id="metrica_ordenar"></select>
+                </div>
+                <div class="checkbox-field">
+                    <label for="ordem_desc" class="group-label">Ordem Descendente</label>
+                    <input id="ordem_desc" type="checkbox">
+                </div>
+            </section>
+
+            <section class="filter-group">
+                <div class="slider-header">
+                    <label for="top_n" class="group-label">Exibir Top N resultados</label>
+                    <span id="top_n_value">20</span>
+                </div>
+                <input id="top_n" type="range" min="1" max="20" value="20">
+            </section>
+
+            <button id="apply-filters" type="button" class="btn btn-primary btn-block">Aplicar filtros</button>
+        </aside>
+
+        <section class="content">
+            <div id="alert-box" class="alert hidden"></div>
+
+            <section class="cards-grid">
+                <article class="metric-card glass-card">
+                    <span class="metric-label">Resultados exibidos</span>
+                    <strong id="card-results">0</strong>
+                </article>
+                <article class="metric-card glass-card">
+                    <span class="metric-label">Métrica de ordenação</span>
+                    <strong id="card-metric">-</strong>
+                </article>
+                <article class="metric-card glass-card">
+                    <span class="metric-label">Ordem</span>
+                    <strong id="card-order">-</strong>
+                </article>
+            </section>
+
+            <section class="panel glass-card">
+                <div class="panel-header">
+                    <h2>📋 Tabela de Resultados</h2>
+                </div>
+                <div class="table-wrapper">
+                    <table id="results-table"></table>
+                </div>
+                <details class="details-panel">
+                    <summary>🔍 Ver detalhes completos</summary>
+                    <div class="table-wrapper">
+                        <table id="details-table"></table>
+                    </div>
+                </details>
+            </section>
+
+            <section class="panel glass-card panel-compare">
+                <div class="panel-header with-tabs">
+                    <h2>📊 Visualizações Comparativas</h2>
+                    <div class="tabs">
+                        <button type="button" class="tab-button active" data-tab="ranking">Ranking</button>
+                        <button type="button" class="tab-button" data-tab="heatmap">Heatmap</button>
+                        <button type="button" class="tab-button" data-tab="evolution">Evolução</button>
+                        <button type="button" class="tab-button" data-tab="box">Distribuição</button>
+                    </div>
+                </div>
+
+                <div class="tab-panel active" data-content="ranking">
+                    <p class="muted">Top sub-modelos considerando a métrica de ordenação selecionada.</p>
+                    <div id="ranking-chart" class="chart"></div>
+                </div>
+
+                <div class="tab-panel" data-content="heatmap">
+                    <div class="chart-controls">
+                        <div>
+                            <label for="heatmap_metric">Métrica do Heatmap</label>
+                            <select id="heatmap_metric"></select>
+                        </div>
+                        <div>
+                            <label for="heatmap_horizon">Horizonte</label>
+                            <select id="heatmap_horizon"></select>
+                        </div>
+                    </div>
+                    <div id="heatmap-chart" class="chart"></div>
+                </div>
+
+                <div class="tab-panel" data-content="evolution">
+                    <div class="chart-controls">
+                        <div>
+                            <label for="evolution_metric">Métrica</label>
+                            <select id="evolution_metric"></select>
+                        </div>
+                        <div>
+                            <label for="evolution_ticker">Ativo</label>
+                            <select id="evolution_ticker"></select>
+                        </div>
+                    </div>
+                    <div id="evolution-chart" class="chart"></div>
+                </div>
+
+                <div class="tab-panel" data-content="box">
+                    <div class="chart-controls single-control">
+                        <div>
+                            <label for="box_metric">Métrica</label>
+                            <select id="box_metric"></select>
+                        </div>
+                    </div>
+                    <div id="box-chart" class="chart"></div>
+                </div>
+            </section>
+
+            <section class="panel glass-card panel-summary">
+                <div class="panel-header">
+                    <h2>📈 Resumo Estatístico por Modelo</h2>
+                </div>
+                <div class="table-wrapper">
+                    <table id="summary-table"></table>
+                </div>
+            </section>
+
+            <section class="panel glass-card">
+                <div class="panel-header">
+                    <h2 id="best-title">🏆 Melhor Modelo por Cenário</h2>
+                </div>
+                <div class="table-wrapper">
+                    <table id="best-table"></table>
+                </div>
+            </section>
+        </section>
+    </main>
+</body>
+</html>

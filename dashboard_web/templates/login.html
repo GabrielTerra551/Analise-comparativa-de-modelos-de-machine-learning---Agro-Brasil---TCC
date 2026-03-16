@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Dashboard ML Agro Brasil</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body class="login-body">
+    <main class="login-shell">
+        <section class="login-card glass-card">
+            <span class="eyebrow">Dashboard protegido</span>
+            <h1>📊 Dashboard ML — Agro Brasil</h1>
+            <p class="muted">
+                Informe a senha para acessar o painel comparativo de modelos de machine learning.
+            </p>
+
+            {% if error %}
+            <div class="alert alert-error">{{ error }}</div>
+            {% endif %}
+
+            <form method="post" action="{{ url_for('login') }}" class="login-form">
+                <label for="password">Senha de acesso</label>
+                <input id="password" name="password" type="password" placeholder="Digite a senha" required autofocus>
+                <button type="submit" class="btn btn-primary">Entrar no dashboard</button>
+            </form>
+
+            <p class="footnote">
+                Dica: defina a variável de ambiente <strong>DASHBOARD_WEB_PASSWORD</strong> para alterar a senha padrão.
+            </p>
+        </section>
+    </main>
+</body>
+</html>
