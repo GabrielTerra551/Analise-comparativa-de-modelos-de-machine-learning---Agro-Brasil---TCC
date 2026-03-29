@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import unicodedata
 from functools import lru_cache, wraps
 from pathlib import Path
 from typing import Any
@@ -76,9 +77,20 @@ def _preparar_dataframe(df: pd.DataFrame, metricas_remover: list[str]) -> pd.Dat
 
 
 
+def _normalizar_tipo(tipo: Any) -> str:
+    texto = str(tipo or "").strip().lower()
+    texto = unicodedata.normalize("NFKD", texto).encode("ascii", "ignore").decode("ascii")
+    if texto == "classificacao":
+        return "Classificacao"
+    if texto == "regressao":
+        return "Regressao"
+    return "Regressao"
+
+
+
 def _configuracao_tipo(tipo: str) -> tuple[pd.DataFrame, list[str]]:
     df_reg, df_clf = carregar_dados()
-    tipo_normalizado = tipo if tipo in TIPOS_VALIDOS else "Regressao"
+    tipo_normalizado = _normalizar_tipo(tipo)
     if tipo_normalizado == "Classificacao":
         return df_clf, METRICAS_CLASSIFICACAO
     return df_reg, METRICAS_REGRESSAO
@@ -86,10 +98,11 @@ def _configuracao_tipo(tipo: str) -> tuple[pd.DataFrame, list[str]]:
 
 
 def _defaults_para_tipo(tipo: str) -> dict[str, Any]:
-    df, metricas = _configuracao_tipo(tipo)
+    tipo_normalizado = _normalizar_tipo(tipo)
+    df, metricas = _configuracao_tipo(tipo_normalizado)
     metrica_ordenar = metricas[0]
     return {
-        "tipo": tipo if tipo in TIPOS_VALIDOS else "Regressao",
+        "tipo": tipo_normalizado,
         "modelos": sorted(df["modelo_nome"].dropna().unique().tolist()),
         "datasets": sorted(df["dataset_nome"].dropna().unique().tolist()),
         "tickers": sorted(df["ticker"].dropna().unique().tolist()),
@@ -321,6 +334,38 @@ def _resumo_estatistico(df_filtrado: pd.DataFrame, metricas: list[str]) -> list[
 
 
 
+def _ordem_estrategia_feature(dataset_nome: Any) -> int:
+    nome = str(dataset_nome or "").strip().lower()
+    if nome == "base":
+        return 0
+    if nome == "dummy":
+        return 1
+    if nome == "indicadores":
+        return 2
+    if nome.startswith("janelas"):
+        return 3
+    return 99
+
+
+
+def _resumo_estatistico_features(df_filtrado: pd.DataFrame, metricas: list[str]) -> list[dict[str, Any]]:
+    if df_filtrado.empty:
+        return []
+
+    resumo = df_filtrado.groupby("dataset_nome")[metricas].agg(["mean", "std", "min", "max"]).round(4)
+    resumo = resumo.sort_index(key=lambda idx: idx.map(_ordem_estrategia_feature))
+
+    registros: list[dict[str, Any]] = []
+    for dataset_nome, linha in resumo.iterrows():
+        item: dict[str, Any] = {"dataset_nome": dataset_nome}
+        for metrica in metricas:
+            for stat in ["mean", "std", "min", "max"]:
+                item[f"{metrica} ({stat})"] = _valor_json(linha[(metrica, stat)])
+        registros.append(item)
+    return registros
+
+
+
 def _melhores_por_cenario(df_filtrado: pd.DataFrame, filtros: dict[str, Any]) -> list[dict[str, Any]]:
     if df_filtrado.empty:
         return []
@@ -425,6 +470,10 @@ def api_dashboard_data():
         "best_by_scenario": {
             "metric": filtros["metrica_ordenar"],
             "rows": _melhores_por_cenario(df_filtrado, filtros),
+        },
+        "feature_summary": {
+            "columns": ["dataset_nome", *[f"{metrica} ({stat})" for metrica in metricas for stat in ["mean", "std", "min", "max"]]],
+            "rows": _resumo_estatistico_features(df_filtrado, metricas),
         },
     }
     return jsonify(resposta)

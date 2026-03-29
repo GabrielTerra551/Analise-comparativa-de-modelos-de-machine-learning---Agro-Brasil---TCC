@@ -386,6 +386,12 @@ function renderBest(bestByScenario) {
     });
 }
 
+function renderFeatureSummary(featureSummary) {
+    renderTable('feature-summary-table', featureSummary.columns, featureSummary.rows, {
+        numericColumns: featureSummary.columns.filter((column) => column !== 'dataset_nome'),
+    });
+}
+
 async function refreshDashboard() {
     try {
         setAlert('');
@@ -402,6 +408,7 @@ async function refreshDashboard() {
         renderAllCharts(data.charts);
         renderSummary(data.summary);
         renderBest(data.best_by_scenario);
+        renderFeatureSummary(data.feature_summary);
 
         if (!data.table.rows.length) {
             setAlert('Nenhum resultado encontrado com os filtros selecionados.');
