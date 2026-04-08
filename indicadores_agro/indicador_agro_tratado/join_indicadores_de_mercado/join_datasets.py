@@ -53,20 +53,43 @@ merged = merged.merge(soja_chicago_close, on='Date', how='left')
 # Sort by date
 merged = merged.sort_values('Date').reset_index(drop=True)
 
-# Display info
-print(f"\nResumo da fusão:")
+# Display info ANTES de limpeza
+print(f"\nResumo da fusão (ANTES da limpeza):")
 print(f"  - Linhas SOJA3: {len(soja3)}")
 print(f"  - Linhas Câmbio: {len(cambio)}")
 print(f"  - Linhas Soja Chicago: {len(soja_chicago)}")
 print(f"  - Linhas resultado: {len(merged)}")
-print(f"  - NaNs no resultado: {merged.isna().sum().sum()}")
+print(f"  - NaNs totais: {merged.isna().sum().sum()}")
+
+# Define critical features (features usadas no treinamento)
+critical_features = ['Close', 'Low', 'High', 'Open',
+                     'OBV', 'FWMA', 'TEMA', 'HLC3', 'BB_upper', 'BB_middle', 'BB_lower',
+                     'cambio_close_lag_1d', 'cambio_close_lag_3d', 'cambio_close_lag_6d', 'cambio_close_lag_10d',
+                     'soja_chicago_close_lag_1d', 'soja_chicago_close_lag_3d', 'soja_chicago_close_lag_6d', 'soja_chicago_close_lag_10d']
+
+# Identificar linhas incompletas
+incomplete_rows = merged[critical_features].isna().any(axis=1)
+print(f"\nLinhas incompletas (com NaN em features críticas): {incomplete_rows.sum()}")
+if incomplete_rows.sum() > 0:
+    print(f"  Datas afetadas: {merged[incomplete_rows]['Date'].dt.strftime('%Y-%m-%d').tolist()}")
+
+# Limpar dataset (remover linhas com NaN em features críticas)
+print("\nLimpando dataset (dropna em features críticas)...")
+merged_clean = merged[~incomplete_rows].reset_index(drop=True)
 
 # Display sample
 print(f"\nAmostra das primeiras linhas com novos dados de mercado:")
-market_cols = ['Date'] + [col for col in merged.columns if 'cambio' in col or 'soja_chicago' in col]
-print(merged[market_cols].head(15))
+market_cols = ['Date'] + [col for col in merged_clean.columns if 'cambio' in col or 'soja_chicago' in col]
+print(merged_clean[market_cols].head(15))
+
+# Display info DEPOIS de limpeza
+print(f"\nResumo APÓS limpeza:")
+print(f"  - Linhas antes: {len(merged)}")
+print(f"  - Linhas depois: {len(merged_clean)}")
+print(f"  - Linhas removidas: {len(merged) - len(merged_clean)} ({(len(merged) - len(merged_clean))/len(merged)*100:.1f}%)")
+print(f"  - NaNs totais: {merged_clean.isna().sum().sum()}")
 
 # Save output
 print(f"\nSalvando resultado em: {output_path}")
-merged.to_csv(output_path, index=False)
+merged_clean.to_csv(output_path, index=False)
 print("✓ Concluído!")
