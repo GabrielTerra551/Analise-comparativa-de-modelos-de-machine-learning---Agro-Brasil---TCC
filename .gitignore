@@ -207,7 +207,7 @@ marimo/_lsp/
 __marimo__/
 
 # outros
-.png
-.pdf
-.csv
-.md
+*.png
+*.csv
+*.pdf
+*.md
