@@ -17,3 +17,4 @@ scipy>=1.11.0
 
 # Web app framework
 Flask>=3.0.0
+ 
