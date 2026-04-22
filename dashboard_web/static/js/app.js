@@ -430,7 +430,8 @@ async function initializeDashboard(tipo = 'Regressão') {
 
 function handleMetricOrderChange() {
     const selectedMetric = controls.metricaOrdenar.value;
-    const higherIsBetter = ['R2', 'Accuracy', 'Precision', 'Recall', 'F1-Score', 'AUC-ROC'].includes(selectedMetric);
+    const metricasMaiores = state.metadata?.metricas_maior_melhor || ['Test_R2', 'OOF_R2', 'Teste_Accuracy', 'Teste_Precision', 'Teste_Recall', 'Teste_F1_Weighted', 'Teste_F1_Classe_Alta', 'Teste_AUC_ROC', 'CV_F1_Best', 'OOF_F1_Threshold'];
+    const higherIsBetter = metricasMaiores.includes(selectedMetric);
     controls.ordemDesc.checked = higherIsBetter;
 }
 

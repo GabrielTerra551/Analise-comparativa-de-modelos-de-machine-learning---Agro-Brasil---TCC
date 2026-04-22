@@ -13,9 +13,29 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 CSV_REGRESSAO = BASE_DIR / "analise_resultados" / "consolidado_regressao.csv"
 CSV_CLASSIFICACAO = BASE_DIR / "analise_resultados" / "consolidado_classificacao.csv"
 
-METRICAS_REGRESSAO = ["R2", "MAE", "RMSE"]
-METRICAS_CLASSIFICACAO = ["Accuracy", "Precision", "Recall", "F1-Score", "AUC-ROC"]
-METRICAS_MAIOR_MELHOR = {"R2", "Accuracy", "Precision", "Recall", "F1-Score", "AUC-ROC"}
+METRICAS_REGRESSAO = ["Test_R2", "Test_MAE", "Test_RMSE", "OOF_R2", "OOF_MAE", "CV_MAE"]
+METRICAS_CLASSIFICACAO = [
+    "Teste_F1_Weighted",
+    "Teste_Accuracy",
+    "Teste_Precision",
+    "Teste_Recall",
+    "Teste_F1_Classe_Alta",
+    "Teste_AUC_ROC",
+    "CV_F1_Best",
+    "OOF_F1_Threshold",
+]
+METRICAS_MAIOR_MELHOR = {
+    "Test_R2",
+    "OOF_R2",
+    "Teste_Accuracy",
+    "Teste_Precision",
+    "Teste_Recall",
+    "Teste_F1_Weighted",
+    "Teste_F1_Classe_Alta",
+    "Teste_AUC_ROC",
+    "CV_F1_Best",
+    "OOF_F1_Threshold",
+}
 ORDEM_HORIZONTES = ["3 dias", "7 dias", "15 dias", "30 dias"]
 TIPOS_VALIDOS = {"Regressao", "Classificacao"}
 
@@ -121,6 +141,7 @@ def _metadata_tipo(tipo: str) -> dict[str, Any]:
     return {
         "tipo": defaults["tipo"],
         "metricas": metricas,
+        "metricas_maior_melhor": [m for m in metricas if m in METRICAS_MAIOR_MELHOR],
         "options": {
             "modelos": defaults["modelos"],
             "datasets": defaults["datasets"],
