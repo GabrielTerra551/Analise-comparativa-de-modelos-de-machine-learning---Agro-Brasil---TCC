@@ -1,0 +1,9 @@
+horizonte_dias,modelo,cv_mae,oof_r2,oof_mae,test_r2,test_mae,test_rmse
+3,Regressao Linear,0.3866,0.9712,0.3866,0.9756,0.3639,0.514
+7,Regressao Linear,0.5807,0.9421,0.5807,0.9398,0.5593,0.7701
+15,Regressao Linear,0.8298,0.8869,0.8298,0.8897,0.7738,1.0493
+30,Regressao Linear,1.1155,0.8178,1.1155,0.8274,1.0962,1.4191
+3,Rede Neural (Regressao),0.3712,0.9737,0.3712,0.9785,0.3411,0.4613
+7,Rede Neural (Regressao),0.4156,0.9662,0.4156,0.9725,0.3671,0.5067
+15,Rede Neural (Regressao),0.4574,0.9609,0.4575,0.961,0.4258,0.5956
+30,Rede Neural (Regressao),0.4909,0.9592,0.4909,0.971,0.4542,0.6413

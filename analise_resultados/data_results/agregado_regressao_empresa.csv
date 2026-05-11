@@ -1,0 +1,7 @@
+empresa,modelo,cv_mae,oof_r2,oof_mae,test_r2,test_mae,test_rmse
+SOJA3,Regressao Linear,0.6777,0.7894,0.6777,0.7922,0.6646,0.8557
+SLCE3,Regressao Linear,0.7132,0.9637,0.7132,0.9688,0.6701,0.8843
+AGRO3,Regressao Linear,0.7936,0.9604,0.7936,0.9634,0.7602,1.0744
+SOJA3,Rede Neural (Regressao),0.4123,0.9224,0.4124,0.9342,0.3783,0.4962
+SLCE3,Rede Neural (Regressao),0.4198,0.9871,0.4198,0.9902,0.3756,0.5173
+AGRO3,Rede Neural (Regressao),0.4693,0.9855,0.4693,0.9878,0.4372,0.6402
