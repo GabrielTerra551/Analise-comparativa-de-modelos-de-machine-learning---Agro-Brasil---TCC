@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import os
 import unicodedata
 from functools import lru_cache, wraps
