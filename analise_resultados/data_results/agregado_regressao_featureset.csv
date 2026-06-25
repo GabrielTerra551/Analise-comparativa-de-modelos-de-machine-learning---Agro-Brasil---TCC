@@ -1,9 +1,0 @@
-feature_set,modelo,cv_mae,oof_r2,oof_mae,test_r2,test_mae,test_rmse
-FS1 Base,Regressao Linear,0.7383,0.901,0.7383,0.9122,0.6773,0.9193
-FS2 Dummy,Regressao Linear,0.7167,0.9061,0.7167,0.9146,0.6657,0.8981
-FS3 Janelas,Regressao Linear,0.7289,0.9055,0.7289,0.9007,0.7268,0.9726
-FS4 Indicadores,Regressao Linear,0.7289,0.9053,0.7289,0.905,0.7233,0.9625
-FS1 Base,Rede Neural (Regressao),0.4713,0.9582,0.4713,0.9687,0.4143,0.577
-FS2 Dummy,Rede Neural (Regressao),0.442,0.9596,0.4421,0.9687,0.3973,0.5602
-FS3 Janelas,Rede Neural (Regressao),0.4539,0.966,0.4539,0.9678,0.436,0.6066
-FS4 Indicadores,Rede Neural (Regressao),0.3679,0.9762,0.3679,0.9777,0.3407,0.461

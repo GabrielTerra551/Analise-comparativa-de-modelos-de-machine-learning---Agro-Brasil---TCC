@@ -1,5 +1,0 @@
-modelo,mean,median,std,min,max
-Random Forest,-0.004,0.0004,0.0261,-0.0573,0.0462
-Rede Neural (Classificacao),-0.1851,-0.0138,0.2839,-0.7088,0.0534
-Regressao Logistica,-0.0008,0.0001,0.0093,-0.0247,0.0209
-XGBoost,-0.0018,-0.0022,0.0255,-0.0649,0.0478
